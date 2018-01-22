@@ -1,7 +1,7 @@
 ES2015(ES6) の基礎的な話
 ===
 
-Author: 吉井温 （Blog: [謎言語使いの徒然](http://white-azalea.hatenablog.jp/)）
+Author: azalea （Blog: [謎言語使いの徒然](http://white-azalea.hatenablog.jp/)）
 
 ---
 
@@ -151,18 +151,16 @@ var foo = new Foo();
 
 ### 機能の一覧:レキシカルスコープの変数
 
-ES5 までだと、関数スコープの変数しか作ることができず、ローカル変数っぽいものを作るために、わざわざ function を定義していました。
-ES2015 からは `{}` が寿命の変数 `let` と定数 `const` が利用できるようになりました。
+ES5 までだと、関数スコープの変数しか作ることができず、ローカル変数っぽいものを作るために、わざわざ function を定義していた。
+ES2015 からは `{}` が寿命の変数 `let` と定数 `const` が利用できる。
 
 ```js
-let foo = [1, 2, 3];
+let name = "Hello";
 {
-  let foo = [4, 5, 6];
-  console.log(foo);
-  // => 4, 5, 6
+  let name = "ageage";
+  console.log(name); // ageage
 }
-console.log(foo);
-// => 1, 2, 3
+console.log(name); // Hello
 ```
 ---
 
@@ -176,6 +174,8 @@ function multiply(a, b = 1) {
 }
 multiply(5); // 5
 ```
+
+[参考:ES2015 (ES6)についてのまとめ](https://qiita.com/tuno-tky/items/74ca595a9232bcbcd727)
 
 ---
 
@@ -198,6 +198,8 @@ let plus = (x, y) => {
 let plus = (x, y) => x + y;
 ```
 
+[参考:ES2015 (ES6)についてのまとめ](https://qiita.com/tuno-tky/items/74ca595a9232bcbcd727)
+
 ---
 
 ### 機能の一覧:可変長引数
@@ -211,6 +213,8 @@ function f(x, ...ys) {
 f(2, 3, 5);
 //=> 2 [ 3, 5 ]
 ```
+
+[参考:ES2015 (ES6)についてのまとめ](https://qiita.com/tuno-tky/items/74ca595a9232bcbcd727)
 
 ---
 
@@ -231,6 +235,8 @@ var variables = [x, y, z]
 [a, b, ...variables] = [1, 2, 3, 4, 5];
 // a = 1, b = 2, x = 3, y = 4, z = 5とした場合と同じ
 ```
+
+[参考:ES2015 (ES6)についてのまとめ](https://qiita.com/tuno-tky/items/74ca595a9232bcbcd727)
 
 ---
 
@@ -311,6 +317,8 @@ for(let n of gen()){
 }
 ```
 
+参考: [ES6(ES2015)チートシート](https://qiita.com/morrr/items/883cb902ccda37e840bc)
+
 ---
 
 ### 機能の一覧:promises を使った非同期処理
@@ -335,6 +343,8 @@ promise.catch(err => {
   console.error('failed: ' + err)
 });
 ```
+
+参考: [ES6(ES2015)チートシート](https://qiita.com/morrr/items/883cb902ccda37e840bc)
 
 ---
 
