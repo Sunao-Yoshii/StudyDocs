@@ -454,4 +454,4 @@ web でアクセスすると…
 
 ### 参考資料
 
-![](1_9_refs.png)
+[![](1_9_refs.png)](http://amzn.to/2BA3EuW)
