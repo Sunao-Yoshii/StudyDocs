@@ -149,7 +149,7 @@ DISTRIB_DESCRIPTION="Ubuntu 16.04.3 LTS"
 `docker run -it --name example-ubuntu ubuntu /bin/bash` の意味は。
 
 * `run` : イメージを実行します。
-* `-it` : `i` で操作モードとして起動、`t` は tty 接続を意味します。
+* `-it` : `i` で対話操作モードとして起動、`t` は tty 接続を意味します。
 * `--name example-ubuntu` : 実行時のコンテナ名を指定します。
 * `ubuntu` : 実行したいイメージ名です。
 * `/bin/bash` : イメージ上で実行するコマンドです。
