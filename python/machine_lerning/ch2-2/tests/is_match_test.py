@@ -1,5 +1,5 @@
 import unittest
-from .. import lernstok
+import lernstok
 
 
 class TestIsMatch(unittest.TestCase):
