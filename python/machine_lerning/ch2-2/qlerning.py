@@ -5,15 +5,15 @@ import random
 # 定数系
 LOOP_MAX = 1000
 NODE_NUM = 15
-LERN_RATE = 0.1
-TEST_RATE = 0.9
-RANDOM_RATE = 0.3
+ALPHA = 0.1
+GAMMA = 0.9
+EPSILON = 0.3
 RANDOM_SEED = 32765
 
 
 def selecta(olds, qvalue):
     """行動選択"""
-    if random.random() < RANDOM_RATE:
+    if random.random() < EPSILON:
         # 一定値以下のランダム値のケースでランダム行動
         if random.randint(0, 1) == 0:
             s = 2 * olds + 1
@@ -32,7 +32,7 @@ def updateq(s, qvalue):
     """Q value 更新"""
     if s > 6:
         if s == 14:
-            qv = qvalue[s] + int(LERN_RATE * (1000 - qvalue[s]))
+            qv = qvalue[s] + int(ALPHA * (1000 - qvalue[s]))
         else:
             qv = qvalue[s]
     else:
@@ -40,7 +40,7 @@ def updateq(s, qvalue):
             qmax = qvalue[2 * s + 1]
         else:
             qmax = qvalue[2 * s + 2]
-        qv = qvalue[s] + int(LERN_RATE * (TEST_RATE * qmax - qvalue[s]))
+        qv = qvalue[s] + int(ALPHA * (GAMMA * qmax - qvalue[s]))
     return qv
 
 
