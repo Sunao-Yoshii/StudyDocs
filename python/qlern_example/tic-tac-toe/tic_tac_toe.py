@@ -164,7 +164,6 @@ class LerningMachine(Player):
         self._last_move = None
         self._last_board = None
         self.is_debug = False
-        self._action_count = 0
 
     def set_e(self, e):
         """e 値を上書き"""
@@ -173,10 +172,8 @@ class LerningMachine(Player):
     def put(self, putable, current_board):
         """石の置ける場所を引数に、実際に石を置く場所を決める"""
         self._last_board = current_board[:]
-        act_count = self._action_count
-        self._action_count += 1
 
-        if random.random() < (self._e / (act_count // LOOP_MAX + 1)):
+        if random.random() < self._e:
             # ランダム行動セレクト
             return select_random(putable)
         else:
@@ -289,7 +286,7 @@ if __name__ == '__main__':
         Player('ランダムさん', TicTacToe.BLACK)
     ]
     white_machine.set_e(0)  # 因みに学習モードは切っておく
-    white_machine.is_debug = True
+    white_machine.is_debug = False
 
     print('Battle start!')
     for i in range(1000):
