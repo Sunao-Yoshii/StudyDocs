@@ -80,7 +80,7 @@ random.seed(RANDOM_SEED)
 
 class Quantity:
     """Q 学習機本体"""
-    def __init__(self, alpha, gamma, initial_q=100):
+    def __init__(self, alpha, gamma, initial_q=50):
         """Q 値、学習係数、伝播係数の設定"""
         self._values = {}
         self._alpha = alpha
@@ -143,6 +143,10 @@ class Player:
         """とりあえずランダムで置く"""
         return select_random(putable)
 
+    def lerning(self, putable, board, result):
+        """学習はしない"""
+        pass
+
     def display_win_state(self):
         print(f'Player: {self.name} : WinCount: {self.win_count}')
 
@@ -164,6 +168,7 @@ class LerningMachine(Player):
         self._last_move = None
         self._last_board = None
         self.is_debug = False
+        self._turn_no = 0
 
     def set_e(self, e):
         """e 値を上書き"""
@@ -171,6 +176,7 @@ class LerningMachine(Player):
 
     def put(self, putable, current_board):
         """石の置ける場所を引数に、実際に石を置く場所を決める"""
+        self._turn_no += 1
         self._last_board = current_board[:]
 
         if random.random() < self._e:
@@ -215,14 +221,20 @@ class LerningMachine(Player):
         state = to_state_str(self._last_board)
         if result == self.color:
             # 勝利(自分のターンのみ)
-            self._q.add_fee(state, self._last_move, LerningMachine.WINNER_SCORE)
+            score_rate = 1.0 if self._turn_no <= 3 else 0.6  # 3 ターン目までなら減衰なし
+            win_score = int(LerningMachine.WINNER_SCORE * score_rate)
+            self._q.add_fee(state, self._last_move, win_score)
+            # 各種リセット
             self._last_move = None
             self._last_board = None
+            self._turn_no = 0
         elif result == TicTacToe.BLANK:
             # 引き分け
             self._q.add_fee(state, self._last_move, LerningMachine.EVEN_SCORE)
+            # 各種リセット
             self._last_move = None
             self._last_board = None
+            self._turn_no = 0
         elif result is None:
             # 継続中
             # Q 値テーブル作成(置ける場所限定で)
@@ -237,8 +249,10 @@ class LerningMachine(Player):
         else:
             # 負けた(最後に打った状態が既に積みだった)
             self._q.add_fee(state, self._last_move, 0)
+            # リセット
             self._last_move = None
             self._last_board = None
+            self._turn_no = 0
 
 
 if __name__ == '__main__':
@@ -289,7 +303,7 @@ if __name__ == '__main__':
     white_machine.is_debug = False
 
     print('Battle start!')
-    for i in range(1000):
+    for i in range(10000):
         bord = TicTacToe()
         index = 0
 
