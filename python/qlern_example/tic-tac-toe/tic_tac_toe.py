@@ -72,15 +72,15 @@ class TicTacToe:
         return TicTacToe.BLANK
 
 
-LOOP_MAX = 20000  # 学習回数
-RANDOM_SEED = 24615  # ランダム関数シード
+LOOP_MAX = 10000  # 学習回数
+RANDOM_SEED = 8132  # ランダム関数シード
 
 random.seed(RANDOM_SEED)
 
 
 class Quantity:
     """Q 学習機本体"""
-    def __init__(self, alpha, gamma, initial_q=1):
+    def __init__(self, alpha, gamma, initial_q=100):
         """Q 値、学習係数、伝播係数の設定"""
         self._values = {}
         self._alpha = alpha
@@ -89,17 +89,15 @@ class Quantity:
 
     def select_q(self, state, act):
         """状態とアクションをキーに、q 値取得"""
-        key = tuple(state[:])
-        if (key, act) in self._values:
-            return self._values[(key, act)]
+        if (state, act) in self._values:
+            return self._values[(state, act)]
         else:
             # Q 値が未学習の状況なら、Q 初期値
             return self._initial_q
 
     def set(self, state, act, q_value):
         """Q 値設定"""
-        key = tuple(state[:])
-        self._values[(key, act)] = q_value
+        self._values[(state, act)] = q_value
 
     def lerning(self, state, act, max_q):
         """Q 値更新"""
@@ -127,6 +125,11 @@ def select_random(putable):
     """石を置ける場所の中からランダムにおける場所のインデックスを応答する"""
     selectables = get_selectables(putable)
     return selectables[random.randint(0, len(selectables) - 1)]
+
+
+def to_state_str(state):
+    """int リストを文字列化する"""
+    return '.'.join([str(i) for i in state])
 
 
 class Player:
@@ -160,6 +163,8 @@ class LerningMachine(Player):
         self._e = e
         self._last_move = None
         self._last_board = None
+        self.is_debug = False
+        self._action_count = 0
 
     def set_e(self, e):
         """e 値を上書き"""
@@ -168,7 +173,10 @@ class LerningMachine(Player):
     def put(self, putable, current_board):
         """石の置ける場所を引数に、実際に石を置く場所を決める"""
         self._last_board = current_board[:]
-        if random.random() < self._e:
+        act_count = self._action_count
+        self._action_count += 1
+
+        if random.random() < (self._e / (act_count // LOOP_MAX + 1)):
             # ランダム行動セレクト
             return select_random(putable)
         else:
@@ -178,7 +186,12 @@ class LerningMachine(Player):
 
             # Q 値テーブル作成(置ける場所限定で)
             for index in selectables:
-                qs.append(self._q.select_q(current_board[:], index))
+                state = to_state_str(current_board)
+                qs.append(self._q.select_q(state, index))
+
+            # DEBUG モードなら、評価テーブルを表示する
+            if self.is_debug:
+                print(qs)
 
             # Q MAX の座標を返す
             max_q = max(qs)
@@ -198,31 +211,35 @@ class LerningMachine(Player):
 
     def lerning(self, putable, board, result):
         """Q 値を更新する"""
+        if self._last_board is None:
+            return
+
+        # 前回の状況を state にまとめる
+        state = to_state_str(self._last_board)
         if result == self.color:
             # 勝利(自分のターンのみ)
-            self._q.add_fee(self._last_board, self._last_move, LerningMachine.WINNER_SCORE)
+            self._q.add_fee(state, self._last_move, LerningMachine.WINNER_SCORE)
             self._last_move = None
             self._last_board = None
         elif result == TicTacToe.BLANK:
             # 引き分け
-            self._q.add_fee(self._last_board, self._last_move, LerningMachine.EVEN_SCORE)
+            self._q.add_fee(state, self._last_move, LerningMachine.EVEN_SCORE)
             self._last_move = None
             self._last_board = None
         elif result is None:
             # 継続中
-            # バックアップ
-            current_board = board[:]
             # Q 値テーブル作成(置ける場所限定で)
             qs = []
             selectables = get_selectables(putable)
             for index in selectables:
-                qs.append(self._q.select_q(current_board[:], index))
+                current = to_state_str(current_board)
+                qs.append(self._q.select_q(current, index))
             # max_q 取得
             max_q = max(qs)
-            self._q.lerning(self._last_board, self._last_move, max_q)
+            self._q.lerning(state, self._last_move, max_q)
         else:
             # 負けた(最後に打った状態が既に積みだった)
-            self._q.add_fee(self._last_board, self._last_move, 0)
+            self._q.add_fee(state, self._last_move, 0)
             self._last_move = None
             self._last_board = None
 
@@ -244,10 +261,8 @@ if __name__ == '__main__':
             defender = lerning_machines[1 - index % 2]
             putable = bord.putable()
 
-            # 継続しているから来ている…ハズなのでまず学習
-            if index > 1:
-                # 最初のターンだけは学習も何もない
-                defender.lerning(putable, bord.bord, None)
+            # 攻撃側は前回の一手の状況から学習する
+            attacker.lerning(putable, bord.bord, None)
 
             # 攻撃側が石を置く
             put_index = attacker.put(putable, bord.bord)
@@ -273,8 +288,8 @@ if __name__ == '__main__':
         white_machine,
         Player('ランダムさん', TicTacToe.BLACK)
     ]
-    # 因みに学習モードは切っておく
-    white_machine.set_e(0)
+    white_machine.set_e(0)  # 因みに学習モードは切っておく
+    white_machine.is_debug = True
 
     print('Battle start!')
     for i in range(1000):
@@ -290,13 +305,20 @@ if __name__ == '__main__':
             attacker = players[index % 2]
             putable = bord.putable()
 
+            # bord.display()
+
             # 攻撃側が石を置く
             put_index = attacker.put(putable, bord.bord)
             result = bord.put(put_index, attacker.color)
 
+            # input()
+
             if result is None:
                 index += 1
             else:
+                # bord.display()
+                # print('Game set.')
+                # input()
                 # 勝敗
                 # 攻撃側だけがポイント
                 if result == attacker.color:
