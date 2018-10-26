@@ -72,7 +72,7 @@ class TicTacToe:
         return TicTacToe.BLANK
 
 
-LOOP_MAX = 10000  # 学習回数
+LOOP_MAX = 20000  # 学習回数
 RANDOM_SEED = 8132  # ランダム関数シード
 
 random.seed(RANDOM_SEED)
@@ -151,6 +151,24 @@ class Player:
         print(f'Player: {self.name} : WinCount: {self.win_count}')
 
 
+class Human(Player):
+    def __init__(self, name='人間さん', color=TicTacToe.BLACK):
+        self.win_count = 0
+        self.name = name
+        self.color = color
+
+    def put(self, putable, current_board):
+        """とりあえずランダムで置く"""
+        return select_random(putable)
+
+    def lerning(self, putable, board, result):
+        """学習はしない"""
+        pass
+
+    def display_win_state(self):
+        print(f'Player: {self.name} : WinCount: {self.win_count}')
+
+
 class LerningMachine(Player):
     """学習機"""
     WINNER_SCORE = 1000   # 勝利時の褒章スコア
@@ -167,8 +185,8 @@ class LerningMachine(Player):
         self._e = e
         self._last_move = None
         self._last_board = None
-        self.is_debug = False
         self._turn_no = 0
+        self.is_debug = False
 
     def set_e(self, e):
         """e 値を上書き"""
@@ -342,6 +360,6 @@ if __name__ == '__main__':
         ]
 
     # 勝敗は？
-    print('1000 回総合:')
+    print('総合:')
     for p in players:
         p.display_win_state()
