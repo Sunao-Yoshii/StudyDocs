@@ -5,6 +5,9 @@ this program require python 3.6+
 """
 
 
+BORAD_LENGTH = 4
+
+
 class ReversiBoard:
     STONE_WHITE = 'W'
     STONE_BLACK = 'B'
@@ -14,12 +17,15 @@ class ReversiBoard:
     Define game board.
     """
     def __init__(self):
-        self.__board_state = [[' ' for i in range(8)] for n in range(8)]
-        self.__board_state[3][3] = ReversiBoard.STONE_BLACK
-        self.__board_state[4][4] = ReversiBoard.STONE_BLACK
-        self.__board_state[3][4] = ReversiBoard.STONE_WHITE
-        self.__board_state[4][3] = ReversiBoard.STONE_WHITE
-    
+        self.initialize()
+
+    def initialize(self):
+        self.__board_state = [[' ' for i in range(BORAD_LENGTH)] for n in range(BORAD_LENGTH)]
+        self.__board_state[1][1] = ReversiBoard.STONE_BLACK
+        self.__board_state[2][2] = ReversiBoard.STONE_BLACK
+        self.__board_state[1][2] = ReversiBoard.STONE_WHITE
+        self.__board_state[2][1] = ReversiBoard.STONE_WHITE
+
     def __is_able2put(self, x, y, color):
         if self.__board_state[y][x] != ReversiBoard.BLANK:
             return False
@@ -34,7 +40,7 @@ class ReversiBoard:
             self.vector(-1, 1, x - 1, y + 1, True, color)
     
     def vector(self, vx, vy, cx, cy, is_fst, color):
-        if cx < 0 or cy < 0 or cx >= 8 or cy >= 8:
+        if cx < 0 or cy < 0 or cx >= BORAD_LENGTH or cy >= BORAD_LENGTH:
             return False
         if self.__board_state[cy][cx] == ReversiBoard.BLANK:
             return False
@@ -47,7 +53,7 @@ class ReversiBoard:
             if self.__board_state[cy][cx] == color:
                 return True
             else:
-                return False
+                return self.vector(vx, vy, cx + vx, cy + vy, False, color)
     
     def is_game_end(self):
         return len(self.able_to_puts(ReversiBoard.STONE_BLACK)) == 0 and len(self.able_to_puts(ReversiBoard.STONE_WHITE)) == 0
@@ -120,6 +126,11 @@ class ReversiBoard:
             reverse(0, -1, x, y - 1)
         if self.vector(-1, -1, x - 1, y - 1, True, color):
             reverse(-1, -1, x - 1, y - 1)
+
+        if self.vector(1, -1, x + 1, y - 1, True, color):
+            reverse(1, -1, x + 1, y - 1)
+        if self.vector(-1, 1, x - 1, y + 1, True, color):
+            reverse(-1, 1, x - 1, y + 1)
     
     def able_to_puts(self, color):
         """
@@ -142,23 +153,30 @@ class ReversiBoard:
         ylength = len(self.__board_state)
         id_list = zip(range(ylength), self.__board_state)
 
-        rendered_board = "  0 1 2 3 4 5 6 7\n"
+        rendered_board = "  0 1 2 3 4 5\n"
         rendered_board += "\n".join([f'{n} ' + " ".join(row) for n, row in id_list])
         return rendered_board
 
 
 class Player:
     def __init__(self, board, color):
-        self.__board = board
-        self.__color = color
+        self._board = board
+        self._color = color
+
+    def set_color(self, color):
+        self._color = color
 
     def put(self):
-        ables = self.__board.able_to_puts(self.__color)
-        print(ables)
-        print(f'Input index({self.__color}):')
-        position_id = int(input('>>'))
-        x, y = ables[position_id]
-        self.__board.put_stone(self.__color, x, y)
+        ables = self._board.able_to_puts(self._color)
+        print(self._board.to_string())
+        if len(ables) > 0:
+            print([f'{idx}:{v}' for idx, v in zip(range(len(ables)), ables)])
+            print(f'Input index({self._color}):')
+            position_id = int(input('>>'))
+            x, y = ables[position_id]
+            self._board.put_stone(self._color, x, y)
+        else:
+            print('Skip! (can not put)')
 
 
 if __name__ == "__main__":
@@ -174,6 +192,8 @@ if __name__ == "__main__":
         turn += 1
         pl.put()
     
+    print('Game is over------')
+    board.show()  # show game end state.
     if board.is_draw():
         print('Draw')
     elif board.is_win(ReversiBoard.STONE_BLACK):
