@@ -8,49 +8,6 @@ import pickle
 # つまり、1試合で先手後手両方で学習してもらう。
 # 先手後手で、同じように学習できるように、Qlerning 内のデータは、自分の石 S と敵の石 E の文字列で保持するようにした。
 
-# 6x6 はとにかく実行速度に難があった。
-# 最初の 20,000 ループ位は、ほとんど学習してくれない(この時点の勝率はランダムといっしょ)
-# 60,000 ループしたくらいから、少しづつ前の手に伝播し始める。
-# 120,000 ループを超えると、第2～3 手までスコアが伝播し始める。(この時点で勝率に有意差が出始める？)
-# 因みに、60,000 回学習するにあたって所要時間は 1 週 4-5 分ほど。
-# 180,000 ループを超えると、第2～3 手に有意差が出始めた
-# しかし、この時点でプロセスのメモリサイズが 8G 突入。
-# 学習ファイルもバイナリにも関わらず 1G に突入…ﾅﾝﾀﾞｺﾚ
-
-# 4x4 で試してみる。
-# やはりマップサイズが小さいと、ループ速度が段違い…
-# この条件でやると、50,000 回の学習(おおそ 1 分)で、勝率はこんな感じ
-#
-# Battle at 100, 97 vs 3
-# Battle at 200, 193 vs 6
-# Battle at 300, 289 vs 8
-# Battle at 400, 386 vs 10
-# Battle at 500, 485 vs 11
-# Battle at 600, 582 vs 14
-# Battle at 700, 677 vs 15
-# Battle at 800, 776 vs 16
-# Battle at 900, 873 vs 18
-# Battle at 1000, 972 vs 19
-# Qlern: 972, Random: 19, 0.972
-
-# 後手番で戦ってみた結果(´・ω・｀)
-# Black win.
-#   0 1 2 3 4 5
-# 0 B B B B
-# 1 W W B B
-# 2 W W B B
-# 3 W W W B
-
-# 先手番で…(´・ω・｀)
-# White win
-#   0 1 2 3 4 5
-# 0 B W W W
-# 1 B W W W
-# 2 B W W W
-# 3 W B B B
-#
-# 3 戦目やる前に負けたという…
-
 LOOP_MAX = 20000  # 学習回数
 RANDOM_SEED = 8132  # ランダム関数シード
 
@@ -344,8 +301,8 @@ def vs_random():
 def vs_player():
     board = ReversiBoard()
     players = [
-        Player(board, ReversiBoard.STONE_BLACK),
-        QPlayer(board, ReversiBoard.STONE_WHITE),
+        QPlayer(board, ReversiBoard.STONE_BLACK),
+        Player(board, ReversiBoard.STONE_WHITE),
     ]
     loop = 0
     while not board.is_game_end():
@@ -365,7 +322,7 @@ if __name__ == "__main__":
     # lerning_at50000()
 
     # ランダムさんと 1000 回勝負
-    # vs_random()
+    vs_random()
 
     # プレイヤーとバトル
     vs_player()
