@@ -34,4 +34,5 @@ def exchange(remain, usables, coin_stack):
     memo[key] = counter
     return counter
 
-print(exchange(1000, coins, []))
+
+print(exchange(1000, [500, 100, 50, 10], []))
