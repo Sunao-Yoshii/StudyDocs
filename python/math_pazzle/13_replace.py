@@ -1,5 +1,5 @@
 # READ + WRITE + TALK = SKILL
-# この文字列のうち、アルファベットお数字に置き換え、成立させてください。
+# この文字列のうち、アルファベットを数字に置き換え、成立させてください。
 
 import re
 import itertools
