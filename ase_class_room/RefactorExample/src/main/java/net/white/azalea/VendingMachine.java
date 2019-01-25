@@ -1,11 +1,13 @@
 package net.white.azalea;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.List;
-import java.util.Scanner;
 
 public class VendingMachine {
 
-    public static void main() {
+    public static void main(String[] args) throws IOException {
         new VendingMachine().buy();
     }
 
@@ -17,62 +19,69 @@ public class VendingMachine {
             new Product(90, "へ〜いお茶")
     );
 
-    private void buy() {
+    private void buy() throws IOException {
         // 入力用
-        Scanner scanner = new Scanner(System.in);
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        String line = null;
+        try {
 
-        // ジュース選択
-        System.out.println("ジュースの選択");
-        for (int i = 0; i < products.size(); i++) {
-            Product p = products.get(i);
-            System.out.println(String.format("%d: Item: %s (%d)", i, p.getName(), p.getPrice()));
-        }
-        int n = 999;
-        while (n >= products.size()) {
-            n = scanner.nextInt();
-            if (n >= products.size()) {
-                System.out.println("選択出来るジュースを選んでください");
+            // ジュース選択
+            System.out.println("ジュースの選択");
+            for (int i = 0; i < products.size(); i++) {
+                Product p = products.get(i);
+                System.out.println(String.format("%d: Item: %s (%d)", i, p.getName(), p.getPrice()));
             }
-        }
+            int n = 999;
+            while (n >= products.size()) {
+                n = Integer.parseInt(reader.readLine());
+                if (n >= products.size()) {
+                    System.out.println("選択出来るジュースを選んでください");
+                }
+            }
 
-        // 選択したジュース
-        Product selected = products.get(n);
+            // 選択したジュース
+            Product selected = products.get(n);
 
-        // コインの挿入
-        System.out.println("コインを入れてね(使用可能: 500, 100, 50, 10)");
-        while (n < selected.getPrice()) {
-            int coin = scanner.nextInt();
-            if (List.of(500, 100, 50, 10).contains(coin)) {
-                n += coin;
-            } else {
-                System.out.println("その硬貨は使えません");
+            // コインの挿入
+            line = null;
+            System.out.println("コインを入れてね(使用可能: 500, 100, 50, 10)");
+            while (n < selected.getPrice()) {
+                int coin = Integer.parseInt(reader.readLine());
+                if (List.of(500, 100, 50, 10).contains(coin)) {
+                    n += coin;
+                } else {
+                    System.out.println("その硬貨は使えません");
+                }
             }
-        }
 
-        // 釣り計算
-        int r = n - selected.getPrice();
-        System.out.println("お釣り硬貨は以下の通りです。");
-        while (r > 0) {
-            if (r > 500) {
-                System.out.println("500円");
-                r -= 500;
-                continue;
+            // 釣り計算
+            int r = n - selected.getPrice();
+            System.out.println("お釣り硬貨は以下の通りです。");
+            while (r > 0) {
+                if (r > 500) {
+                    System.out.println("500円");
+                    r -= 500;
+                    continue;
+                }
+                if (r > 100) {
+                    System.out.println("500円");
+                    r -= 500;
+                    continue;
+                }
+                if (r > 50) {
+                    System.out.println("500円");
+                    r -= 500;
+                    continue;
+                }
+                if (r > 10) {
+                    System.out.println("500円");
+                    r -= 500;
+                }
             }
-            if (r > 100) {
-                System.out.println("500円");
-                r -= 500;
-                continue;
-            }
-            if (r > 50) {
-                System.out.println("500円");
-                r -= 500;
-                continue;
-            }
-            if (r > 10) {
-                System.out.println("500円");
-                r -= 500;
-                continue;
-            }
+        } catch (Exception e) {
+            System.out.println(e.toString());
+        } finally {
+            reader.close();
         }
     }
 }
