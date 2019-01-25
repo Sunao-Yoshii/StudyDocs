@@ -26,6 +26,7 @@ public class VendingMachine {
 
     private final List<Product> products;
     private final IOUtils ioUtils;
+    private final List<Integer> coins = List.of(500, 100, 50, 10);
 
     public VendingMachine(IOUtils ioUtils, List<Product> products) {
         this.ioUtils = ioUtils;
@@ -43,30 +44,22 @@ public class VendingMachine {
             this.ioUtils.println(this.getProductsString());
 
             // ジュース選択
-            int n = 999;
-            while (n >= products.size()) {
-                n = this.ioUtils.readInteger();
-                if (n >= products.size()) {
-                    this.ioUtils.println("選択出来るジュースを選んでください");
-                }
-            }
+            List<Integer> selectable = this.getItemIndexes();
+            int selected = this.selectNumber(selectable, "選択出来るジュースを選んでください");
 
             // 選択したジュース
-            Product selected = products.get(n);
+            Product product = products.get(selected);
 
             // コインの挿入
             this.ioUtils.println("コインを入れてね(使用可能: 500, 100, 50, 10)");
-            while (n < selected.getPrice()) {
-                int coin = this.ioUtils.readInteger();
-                if (List.of(500, 100, 50, 10).contains(coin)) {
-                    n += coin;
-                } else {
-                    this.ioUtils.println("その硬貨は使えません");
-                }
+            int insertedCoin = 0;
+            while (insertedCoin < product.getPrice()) {
+                int coin = this.selectNumber(coins, "その硬貨は使えません");
+                insertedCoin += coin;
             }
 
             // 釣り計算
-            int r = n - selected.getPrice();
+            int r = insertedCoin - product.getPrice();
             this.ioUtils.println("お釣り硬貨は以下の通りです。");
             while (r > 0) {
                 if (r > 500) {
@@ -91,6 +84,22 @@ public class VendingMachine {
             }
         } catch (Exception e) {
             this.ioUtils.println(e.toString());
+        }
+    }
+
+    public List<Integer> getItemIndexes() {
+        List<Integer> selectable = new ArrayList<>(products.size());
+        for (int k = 0; k < products.size(); k++) { selectable.add(k); }
+        return selectable;
+    }
+
+    public int selectNumber(List<Integer> selectable, String error) throws IOException {
+        while (true) {
+            int input = this.ioUtils.readInteger();
+            if (selectable.contains(input)) {
+                return input;
+            }
+            this.ioUtils.println(error);
         }
     }
 
