@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class VendingMachine {
 
@@ -44,7 +45,7 @@ public class VendingMachine {
             this.ioUtils.println(this.getProductsString());
 
             // ジュース選択
-            List<Integer> selectable = this.getItemIndexes();
+            List<Integer> selectable = this.getProductIndexes();
             int selected = this.selectNumber(selectable, "選択出来るジュースを選んでください");
 
             // 選択したジュース
@@ -55,32 +56,27 @@ public class VendingMachine {
             int insertedCoin = this.payment(product.getPrice());
 
             // 釣り計算
-            int r = insertedCoin - product.getPrice();
             this.ioUtils.println("お釣り硬貨は以下の通りです。");
-            while (r > 0) {
-                if (r > 500) {
-                    this.ioUtils.println("500円");
-                    r -= 500;
-                    continue;
-                }
-                if (r > 100) {
-                    this.ioUtils.println("100円");
-                    r -= 500;
-                    continue;
-                }
-                if (r > 50) {
-                    this.ioUtils.println("50円");
-                    r -= 500;
-                    continue;
-                }
-                if (r > 10) {
-                    this.ioUtils.println("10円");
-                    r -= 500;
-                }
-            }
+            List<Integer> changes = this.changeCoins(insertedCoin - product.getPrice());
+            this.ioUtils.println(
+                    changes.stream()
+                        .map(i -> String.format("%d円", i))
+                        .collect(Collectors.joining("\n"))
+            );
         } catch (Exception e) {
             this.ioUtils.println(e.toString());
         }
+    }
+
+    private List<Integer> changeCoins(int change) {
+        List<Integer> changeCoin = new ArrayList<>();
+        for (int coin : this.coins) {
+            while (change > coin) {
+                changeCoin.add(coin);
+                change -= coin;
+            }
+        }
+        return changeCoin;
     }
 
     public int payment(int price) throws IOException {
@@ -92,7 +88,7 @@ public class VendingMachine {
         return insertedCoin;
     }
 
-    public List<Integer> getItemIndexes() {
+    public List<Integer> getProductIndexes() {
         List<Integer> selectable = new ArrayList<>(products.size());
         for (int k = 0; k < products.size(); k++) { selectable.add(k); }
         return selectable;
