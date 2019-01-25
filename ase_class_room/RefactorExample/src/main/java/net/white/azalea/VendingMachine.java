@@ -3,43 +3,52 @@ package net.white.azalea;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintStream;
 import java.util.List;
 
 public class VendingMachine {
 
     public static void main(String[] args) throws IOException {
-        new VendingMachine().buy();
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(System.in))) {
+            List<Product> products = List.of(
+                    new Product(110, "へ〜いお茶"),
+                    new Product(130, "超カテキンなアレ"),
+                    new Product(110, "ポーラ"),
+                    new Product(120, "練乳珈琲"),
+                    new Product(90, "へ〜いお茶")
+            );
+
+            new VendingMachine(reader, System.out, products).buy();
+        }
     }
 
-    private List<Product> products = List.of(
-            new Product(110, "へ〜いお茶"),
-            new Product(130, "超カテキンなアレ"),
-            new Product(110, "ポーラ"),
-            new Product(120, "練乳珈琲"),
-            new Product(90, "へ〜いお茶")
-    );
+    private final BufferedReader reader;
+    private final PrintStream out;
+    private final List<Product> products;
+
+    public VendingMachine(BufferedReader reader, PrintStream printer, List<Product> products) {
+        this.reader = reader;
+        this.out = printer;
+        this.products = products;
+    }
 
     /**
      * 起動すると、商品を列挙し、商品選択させる。商品選択後はコインを投入させ、支払い金額を超えたら釣り銭を出力する。
      * というクソコード
-     * @throws IOException
      */
-    public void buy() throws IOException {
-        // 入力用
-        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+    public void buy() {
         try {
-
             // ジュース選択
-            System.out.println("ジュースの選択");
+            out.println("ジュースの選択");
             for (int i = 0; i < products.size(); i++) {
                 Product p = products.get(i);
-                System.out.println(String.format("%d: Item: %s (%d)", i, p.getName(), p.getPrice()));
+                out.println(String.format("%d: Item: %s (%d)", i, p.getName(), p.getPrice()));
             }
             int n = 999;
             while (n >= products.size()) {
                 n = Integer.parseInt(reader.readLine());
                 if (n >= products.size()) {
-                    System.out.println("選択出来るジュースを選んでください");
+                    out.println("選択出来るジュースを選んでください");
                 }
             }
 
@@ -47,44 +56,42 @@ public class VendingMachine {
             Product selected = products.get(n);
 
             // コインの挿入
-            System.out.println("コインを入れてね(使用可能: 500, 100, 50, 10)");
+            out.println("コインを入れてね(使用可能: 500, 100, 50, 10)");
             while (n < selected.getPrice()) {
                 int coin = Integer.parseInt(reader.readLine());
                 if (List.of(500, 100, 50, 10).contains(coin)) {
                     n += coin;
                 } else {
-                    System.out.println("その硬貨は使えません");
+                    out.println("その硬貨は使えません");
                 }
             }
 
             // 釣り計算
             int r = n - selected.getPrice();
-            System.out.println("お釣り硬貨は以下の通りです。");
+            out.println("お釣り硬貨は以下の通りです。");
             while (r > 0) {
                 if (r > 500) {
-                    System.out.println("500円");
+                    out.println("500円");
                     r -= 500;
                     continue;
                 }
                 if (r > 100) {
-                    System.out.println("500円");
+                    out.println("500円");
                     r -= 500;
                     continue;
                 }
                 if (r > 50) {
-                    System.out.println("500円");
+                    out.println("500円");
                     r -= 500;
                     continue;
                 }
                 if (r > 10) {
-                    System.out.println("500円");
+                    out.println("500円");
                     r -= 500;
                 }
             }
         } catch (Exception e) {
-            System.out.println(e.toString());
-        } finally {
-            reader.close();
+            out.println(e.toString());
         }
     }
 }
