@@ -52,11 +52,7 @@ public class VendingMachine {
 
             // コインの挿入
             this.ioUtils.println("コインを入れてね(使用可能: 500, 100, 50, 10)");
-            int insertedCoin = 0;
-            while (insertedCoin < product.getPrice()) {
-                int coin = this.selectNumber(coins, "その硬貨は使えません");
-                insertedCoin += coin;
-            }
+            int insertedCoin = this.payment(product.getPrice());
 
             // 釣り計算
             int r = insertedCoin - product.getPrice();
@@ -85,6 +81,15 @@ public class VendingMachine {
         } catch (Exception e) {
             this.ioUtils.println(e.toString());
         }
+    }
+
+    public int payment(int price) throws IOException {
+        int insertedCoin = 0;
+        while (insertedCoin < price) {
+            int coin = this.selectNumber(coins, "その硬貨は使えません");
+            insertedCoin += coin;
+        }
+        return insertedCoin;
     }
 
     public List<Integer> getItemIndexes() {
