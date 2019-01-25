@@ -19,10 +19,14 @@ public class VendingMachine {
             new Product(90, "へ〜いお茶")
     );
 
-    private void buy() throws IOException {
+    /**
+     * 起動すると、商品を列挙し、商品選択させる。商品選択後はコインを投入させ、支払い金額を超えたら釣り銭を出力する。
+     * というクソコード
+     * @throws IOException
+     */
+    public void buy() throws IOException {
         // 入力用
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-        String line = null;
         try {
 
             // ジュース選択
@@ -43,7 +47,6 @@ public class VendingMachine {
             Product selected = products.get(n);
 
             // コインの挿入
-            line = null;
             System.out.println("コインを入れてね(使用可能: 500, 100, 50, 10)");
             while (n < selected.getPrice()) {
                 int coin = Integer.parseInt(reader.readLine());
