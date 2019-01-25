@@ -50,16 +50,17 @@ public class VendingMachine {
             this.ioUtils.println(this.getProductsString());
 
             // 選択したジュース
-            List<Integer> selectable = this.getProductIndexes();
-            Product product = products.get(this.selectNumber(selectable, "選択出来るジュースを選んでください"));
+            Product product = products.get(
+                    this.ioUtils.selectNumber(
+                            this.getProductIndexes(), "選択出来るジュースを選んでください"));
 
             // コインの挿入
             this.ioUtils.println("コインを入れてね(使用可能: 500, 100, 50, 10)");
-            int insertedCoin = this.inputPayment(product.getPrice());
+            int insertedCoin = inputPayment(product.getPrice(), this.coins);
 
             // 釣り計算
             this.ioUtils.println("お釣り硬貨は以下の通りです。");
-            List<Integer> changes = this.changeCoins(insertedCoin - product.getPrice());
+            List<Integer> changes = Exchanger.exchange(insertedCoin - product.getPrice(), this.coins);
 
             // 釣り銭表示
             this.ioUtils.println(
@@ -73,32 +74,16 @@ public class VendingMachine {
     }
 
     /**
-     * 釣り銭の硬貨列挙
-     * @param change 釣り銭の金額
-     * @return お釣りの硬貨リスト
-     */
-    public List<Integer> changeCoins(int change) {
-        List<Integer> changeCoin = new ArrayList<>();
-        for (int coin : this.coins) {
-            while (change > coin) {
-                changeCoin.add(coin);
-                change -= coin;
-            }
-        }
-        return changeCoin;
-    }
-
-    /**
      * 目標価格を上回るまでコイン入力を受け付ける.
      * @param price 目標価格
+     * @param coins 硬貨リスト
      * @return 支払った合計金額
      * @throws IOException
      */
-    public int inputPayment(int price) throws IOException {
+    public int inputPayment(int price, List<Integer> coins) throws IOException {
         int insertedCoin = 0;
         while (insertedCoin < price) {
-            int coin = this.selectNumber(coins, "その硬貨は使えません");
-            insertedCoin += coin;
+            insertedCoin += this.ioUtils.selectNumber(coins, "その硬貨は使えません");
         }
         return insertedCoin;
     }
@@ -114,23 +99,6 @@ public class VendingMachine {
     }
 
     /**
-     * 選択可能リスト中で指定した数字の入力を促します。選択肢外を指定した場合、エラーメッセージを表示します。
-     * @param selectable 選択可能な数字群
-     * @param error      選択肢外を指定した時のメッセージ
-     * @return 選択された数字
-     * @throws IOException
-     */
-    public int selectNumber(List<Integer> selectable, String error) throws IOException {
-        while (true) {
-            int input = this.ioUtils.readInteger();
-            if (selectable.contains(input)) {
-                return input;
-            }
-            this.ioUtils.println(error);
-        }
-    }
-
-    /**
      * 製品インデックス、製品名と金額を列挙した文字列を取得する.
      * @return
      */
@@ -141,6 +109,26 @@ public class VendingMachine {
             productStrings.add(String.format("%d: Item: %s (%d)", i, p.getName(), p.getPrice()));
         }
         return String.join("\n", productStrings);
+    }
+}
+
+class Exchanger {
+
+    /**
+     * 両替による硬貨列挙
+     * @param change 釣り銭の金額
+     * @param coins  硬貨リスト
+     * @return お釣りの硬貨リスト
+     */
+    public static List<Integer> exchange(int change, List<Integer> coins) {
+        List<Integer> changeCoin = new ArrayList<>();
+        for (int coin : coins) {
+            while (change > coin) {
+                changeCoin.add(coin);
+                change -= coin;
+            }
+        }
+        return changeCoin;
     }
 }
 
@@ -172,10 +160,19 @@ class IOUtils {
         this.out = out;
     }
 
+    /**
+     * 表示
+     * @param v
+     */
     public void println(String v) {
         this.out.println(v);
     }
 
+    /**
+     * 数字入力の読み取り
+     * @return
+     * @throws IOException
+     */
     public int readInteger() throws IOException {
         while(true) {
             try {
@@ -183,6 +180,23 @@ class IOUtils {
             } catch (NumberFormatException e) {
                 this.out.println("整数を入力してください。");
             }
+        }
+    }
+
+    /**
+     * 選択可能リスト中で指定した数字の入力を促します。選択肢外を指定した場合、エラーメッセージを表示します。
+     * @param selectable 選択可能な数字群
+     * @param error      選択肢外を指定した時のメッセージ
+     * @return 選択された数字
+     * @throws IOException
+     */
+    public int selectNumber(List<Integer> selectable, String error) throws IOException {
+        while (true) {
+            int input = this.readInteger();
+            if (selectable.contains(input)) {
+                return input;
+            }
+            this.println(error);
         }
     }
 }
