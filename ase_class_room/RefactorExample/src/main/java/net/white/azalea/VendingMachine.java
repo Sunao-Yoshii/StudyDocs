@@ -56,53 +56,62 @@ public class VendingMachine {
 
             // コインの挿入
             this.ioUtils.println("コインを入れてね(使用可能: 500, 100, 50, 10)");
-            int insertedCoin = inputPayment(product.getPrice(), this.coins);
+            int insertedCoin = inputPayment(product.getPrice());
 
-            // 釣り計算
+            // 釣り計算/表示
             this.ioUtils.println("お釣り硬貨は以下の通りです。");
             List<Integer> changes = Exchanger.exchange(insertedCoin - product.getPrice(), this.coins);
-
-            // 釣り銭表示
-            this.ioUtils.println(
-                    changes.stream()
-                        .map(i -> String.format("%d円", i))
-                        .collect(Collectors.joining("\n"))
-            );
+            this.ioUtils.println(this.getExchangesStr(changes));
         } catch (Exception e) {
             this.ioUtils.println(e.toString());
         }
     }
 
     /**
+     * 釣り銭を文字列化する
+     * @param changes
+     * @return
+     */
+    String getExchangesStr(List<Integer> changes) {
+        return changes.stream()
+                .map(i -> String.format("%d円", i))
+                .collect(Collectors.joining("\n"));
+    }
+
+    /**
      * 目標価格を上回るまでコイン入力を受け付ける.
+     *
      * @param price 目標価格
-     * @param coins 硬貨リスト
      * @return 支払った合計金額
      * @throws IOException
      */
-    public int inputPayment(int price, List<Integer> coins) throws IOException {
+    int inputPayment(int price) throws IOException {
         int insertedCoin = 0;
         while (insertedCoin < price) {
-            insertedCoin += this.ioUtils.selectNumber(coins, "その硬貨は使えません");
+            insertedCoin += this.ioUtils.selectNumber(this.coins, "その硬貨は使えません");
         }
         return insertedCoin;
     }
 
     /**
      * 商品のインデックスリストを取得.
+     *
      * @return
      */
-    public List<Integer> getProductIndexes() {
+    List<Integer> getProductIndexes() {
         List<Integer> selectable = new ArrayList<>(products.size());
-        for (int k = 0; k < products.size(); k++) { selectable.add(k); }
+        for (int k = 0; k < products.size(); k++) {
+            selectable.add(k);
+        }
         return selectable;
     }
 
     /**
      * 製品インデックス、製品名と金額を列挙した文字列を取得する.
+     *
      * @return
      */
-    public String getProductsString() {
+    String getProductsString() {
         List<String> productStrings = new ArrayList<>();
         for (int i = 0; i < products.size(); i++) {
             Product p = products.get(i);
@@ -116,6 +125,7 @@ class Exchanger {
 
     /**
      * 両替による硬貨列挙
+     *
      * @param change 釣り銭の金額
      * @param coins  硬貨リスト
      * @return お釣りの硬貨リスト
@@ -123,7 +133,7 @@ class Exchanger {
     public static List<Integer> exchange(int change, List<Integer> coins) {
         List<Integer> changeCoin = new ArrayList<>();
         for (int coin : coins) {
-            while (change > coin) {
+            while (change >= coin) {
                 changeCoin.add(coin);
                 change -= coin;
             }
@@ -162,6 +172,7 @@ class IOUtils {
 
     /**
      * 表示
+     *
      * @param v
      */
     public void println(String v) {
@@ -170,11 +181,12 @@ class IOUtils {
 
     /**
      * 数字入力の読み取り
+     *
      * @return
      * @throws IOException
      */
     public int readInteger() throws IOException {
-        while(true) {
+        while (true) {
             try {
                 return Integer.parseInt(reader.readLine());
             } catch (NumberFormatException e) {
@@ -185,6 +197,7 @@ class IOUtils {
 
     /**
      * 選択可能リスト中で指定した数字の入力を促します。選択肢外を指定した場合、エラーメッセージを表示します。
+     *
      * @param selectable 選択可能な数字群
      * @param error      選択肢外を指定した時のメッセージ
      * @return 選択された数字
