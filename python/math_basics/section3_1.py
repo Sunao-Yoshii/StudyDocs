@@ -27,7 +27,7 @@ def loss(f: func, x: float, t: float) -> float:
         float -- 誤差値
     """
     y = f(x)
-    return t - y
+    return (t - y)**2
 
 
 def numerical_gradient(f: func, x_value: float):
@@ -49,12 +49,12 @@ def numerical_gradient(f: func, x_value: float):
     fhx1 = f(x1)
     fhx2 = f(x2)
 
-    grad = (fhx1 - fhx2) / 2*h
+    grad = (fhx1 - fhx2) / (2 * h)
     return grad
 
 
 loop = 800
-lern = 1000000.0
+lern = 0.001
 current_x = 3.5
 log = []
 
@@ -65,8 +65,9 @@ loss_func = lambda x: loss(func, x, 0.0)
 for n in range(loop):
     # 微分して
     gradient = numerical_gradient(loss_func, current_x)
+    print(gradient * lern)
     # 誤差を元にあるべき x に近づける
-    current_x += gradient * lern
+    current_x -= gradient * lern
     log.append(current_x)
 
 
