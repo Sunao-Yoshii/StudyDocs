@@ -16,10 +16,9 @@ class ClassRoom:
         self.title = title
         self.limit = or_zero(limit)
         self.joins = or_zero(accepted) + or_zero(waiting)
-        self.score = self.joins / self.limit if self.limit != 0 else 1
 
     def __str__(self):
-        return f'ClassRoom({self.title}, {self.limit}, {self.joins}, {self.score})'
+        return f'ClassRoom({self.title}, {self.limit}, {self.joins})'
 
 
 class ClassRoomLoader:
@@ -52,7 +51,7 @@ class AbstractCompassAtnd(ClassRoomLoader):
     def request_to_compass(self, target_month: str, top: int) -> requests.Response:
         params = self.create_request_parameter(target_month, top)
         query = '&'.join([f'{key}={params[key]}' for key in params.keys()])
-        print(f'Request: {query}')
+        print(f'Request: {self.api_url}?{query}')
         return requests.get(self.api_url + '?' + query)
 
 
@@ -118,7 +117,7 @@ class AtndLoader(AbstractCompassAtnd):
 
 
 
-class CompassLoader(ClassRoomLoader):
+class CompassLoader(AbstractCompassAtnd):
     """Compass から指定月の情報を取得するクラス.
 
     Arguments:
@@ -135,7 +134,13 @@ class CompassLoader(ClassRoomLoader):
         return {"ym": target_month, "count": self.max_event_num, "order": 1, "start": top}
 
 
+
+# import pickle for backup dump.
+import pickle
 if __name__ == "__main__":
     class_rooms = AtndLoader().load_class_rooms("201904")
+    class_rooms.extend(CompassLoader().load_class_rooms("201904"))
+    with open('backup.pickle', 'wb') as f:
+        pickle.dump(class_rooms, f)
     print("\n".join([str(s) for s in class_rooms]))
 
