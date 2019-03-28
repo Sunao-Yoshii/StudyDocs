@@ -1,0 +1,19 @@
+{
+  "name": "first-slack-app",
+  "version": "1.0.0",
+  "description": "Example slack application",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Yosshy",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@slack/client": "^4.12.0",
+    "@slack/events-api": "^2.2.0",
+    "body-parser": "^1.18.3",
+    "dotenv": "^7.0.0",
+    "express": "^4.16.4",
+    "require": "^2.4.20"
+  }
+}
