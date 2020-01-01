@@ -1,0 +1,22 @@
+{
+  "name": "log_indent",
+  "version": "1.0.0",
+  "description": "Add indention to salesforce apex logs.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "Salesforce",
+    "apex"
+  ],
+  "author": "Sunao-Yoshii",
+  "license": "Apache-2.0",
+  "directories": {
+    "bin": "bin"
+  },
+  "dependencies": {
+    "command-line-args": "^5.1.1",
+    "command-line-usage": "^6.1.0"
+  }
+}
