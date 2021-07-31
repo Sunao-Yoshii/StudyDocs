@@ -1,0 +1,11 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"jupyter.jupyterServerType": "local",
+		"python.pythonPath": "D:\\ProgramData\\Anaconda3\\python.exe"
+	}
+}

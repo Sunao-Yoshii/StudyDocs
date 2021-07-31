@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iris</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/9.2.0/math.js"></script>
+</head>
+<body>
+    <script>
+        const middle_w = math.matrix([[-0.37791011431611676, 0.03295488063509766, 0.3420945556236132, 0.30166856875056935, -0.21219877180909835, -0.010069964625783545, 0.27794499885092205, -0.398933181760742], [-1.9255089332415773, 1.2511527783210896, 1.7675887476888166, 1.6755548778237705, 0.7481479434697025, 1.1523410854237444, 1.5831249176747109, 0.4108994310001761], [6.086371767680688, -4.608346851803051, -6.010497555156929, -5.791896330967219, -3.32424587195477, -4.2963446303672965, -5.614285563371247, -2.509715984031604], [3.5367161799907016, -2.633132104633563, -3.505722035617003, -3.368791012895072, -1.8457100201853713, -2.4362656179086803, -3.2355526244884363, -1.351205989346281]]);
+        const middle_b = math.matrix([[-1.5688415235721709, 1.3152896281324962, 1.9259653823017484, 1.833634432303389, 0.6867788300844402, 1.154169700725085, 1.7512061518314432, 0.16790344701525367]]);
+        const output_w = math.matrix([[-7.0419433950389445, -0.2047617985662437, 7.226118617609221], [3.03586686340172, 0.6930753248897973, -3.7435620670805116], [4.160262110192553, 1.0942939867640822, -5.242799641786152], [3.9678402497242136, 1.0338072055208727, -5.000119717617293], [2.04249348347599, 0.46874914434725296, -2.503804422725612], [2.808673616002259, 0.6218796513771182, -3.4154934374365182], [3.8124202808756524, 0.9763499728790614, -4.790295541993576], [1.4054709195492832, 0.38402111025982255, -1.7693249864093947]]);
+        const output_b = math.matrix([[-5.538366535062681, 0.9178471888963776, 4.588826644541712]]);
+
+        function sigmoid(u) {
+            let minus = math.map(u, v => -v);
+            let tmp = math.exp(minus);
+            return math.map(tmp, v => 1 / (1 + v));
+        }
+
+        function softmax(u) {
+            let expU = math.exp(u);
+            let tmp = math.sum(math.exp(u));
+            return math.map(expU, v => v / tmp);
+        }
+
+        class Neuron {
+            constructor(w, b, activation_function) {
+                this.w = w;
+                this.b = b;
+                this.activation_function = activation_function;
+            }
+
+            forward(x) {
+                let dot = math.multiply(x, this.w);
+                let u = math.add(dot, this.b);
+                return this.activation_function(u);
+            }
+        }
+
+        const middle = new Neuron(middle_w, middle_b, sigmoid);
+        const output = new Neuron(output_w, output_b, softmax);
+
+        function detect(result) {
+            let flatted = math.flatten(result);
+            let a = math.subset(flatted, math.index(0));
+            let b = math.subset(flatted, math.index(1));
+            let c = math.subset(flatted, math.index(2));
+            if (a > b && a > c) {
+                return 'setosa';
+            } else if (b > a && b > c) {
+                return 'versicolor';
+            } else {
+                return 'virginica';
+            }
+        }
+
+        function exec() {
+            let sepal_length = Number(document.getElementById('sepal_length').value);
+            let sepal_width = Number(document.getElementById('sepal_width').value);
+            let petal_length = Number(document.getElementById('petal_length').value);
+            let petal_width = Number(document.getElementById('petal_width').value);
+
+            // ニューラルネットを実行
+            const respond = output.forward(middle.forward(math.matrix(
+                [[sepal_length / 10.0, sepal_width / 10.0, petal_length / 10.0, petal_width / 10.0]]
+            )));
+            document.getElementById('newralnet_response').innerText = respond;
+            document.getElementById('result').innerText = detect(respond);
+        }
+    </script>
+
+    <form action="#">
+        <div><label for="sepal_length">がくの長さ</label><input id="sepal_length" type="text" name="sepal_length"></div>
+        <div><label for="sepal_width">がくの幅</label>  <input id="sepal_width" type="text" name="sepal_width"></div>
+        <div><label for="petal_length">花弁の長さ</label><input id="petal_length" type="text" name="petal_lengh"></div>
+        <div><label for="petal_width">花弁の幅</label>  <input id="petal_width" type="text" name="petal_width"></div>
+        <div id="newralnet_response"></div>
+        <div id="result"></div>
+        <div><button id="execute" type="button" onclick="exec();">検査実行</button></div>
+    </form>
+</body>
+</html>
