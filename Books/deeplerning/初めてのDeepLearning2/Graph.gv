@@ -1,0 +1,32 @@
+digraph G {
+    splines="FALSE";
+
+    /* Entities */
+    Sigmoid1 [label="Sigmoid", shape="square"]
+    Sigmoid2 [label="Sigmoid", shape="square"]
+    Sigmoid3 [label="Sigmoid", shape="square"]
+    Tanh [label="Tanh", shape="square"]
+    Tanh2 [label="Tanh", shape="square"]
+    x1 [label="積"]
+    x2 [label="積"]
+    x3 [label="積"]
+    p1 [label="和"]
+    memoryCell [label="記憶セル", shape="diamond"]
+    
+    /* Relationships */
+    "Xt, Yt-1" -> Sigmoid1
+    "Xt, Yt-1" -> Sigmoid2
+    "Xt, Yt-1" -> Tanh
+    "Xt, Yt-1" -> Sigmoid3
+
+    Sigmoid1 -> x1[label="忘却ゲート"]
+    Sigmoid2 -> x2[label="入力ゲート"]
+    Tanh -> x2
+    Sigmoid3 -> x3[label="出力ゲート"]
+    x1 -> p1
+    x2 -> p1
+    p1 -> memoryCell
+    memoryCell -> x1[style="dotted"]
+    memoryCell -> Tanh2
+    Tanh2 -> x3 -> Yt
+}
